@@ -1,46 +1,85 @@
-- 👋 Hi, I’m @Rockyboss1
-- 👀<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>world Market</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-       <header>
-      <nav class="navbar">
-        <div class="nav-logo">
-          <a href="#"><img src="images/amazon_logo.png" width="250px" height="200px" class="shoesdown">
-        </div>               </div>
-        
-        
-<ul>
-           <li><a href="index.html"><p style="color: green">home</p>
-  
- </a></li>                <div class="searchbar">
-                <div class="search">
-                    <input type="search" placeholder="Search">
-                    <i class="fa-solid fa-search"></i>
-                </div>
-                <i class="fa-solid fa-cart-arrow-down"></i>
-                <i class="fa-solid fa-bars"></i>
-            </div>
- 
-                
-                <li><a href="About.html"><p style="color: green">About</p>
-  
- </a></li>
-           <div class="shop-link">
-          <h4>beeach house</h4>
-          <img src="images/img-2.png" width="350px" height="300px"  alt="card">
-          <a href="shop.html">Shop now</a>
-        </div>
-               
-            </ul>      
-       </nav>
-    <p>Discover amazing deals and shop now!</p>
-    <!-- Other sections of your website -->
-</body>
-</html>
- 
+import speech_recognition as sr
+import pyttsx3
+import os
+import subprocess
+import datetime
+
+# Initialize TTS Engine
+engine = pyttsx3.init()
+engine.setProperty("rate", 150)
+engine.setProperty("volume", 0.9)
+
+# Function to make JARVIS speak
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+# Function to listen and process voice commands
+def take_command():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening for commands...")
+        recognizer.pause_threshold = 1
+        try:
+            audio = recognizer.listen(source)
+            command = recognizer.recognize_google(audio, language="en-in")
+            print(f"Command: {command}")
+        except sr.UnknownValueError:
+            speak("Sorry, I didn't understand. Please say it again.")
+            return "None"
+        return command.lower()
+
+# Function to run shell commands for hacking tools
+def run_hacking_tool(tool_command):
+    try:
+        speak(f"Running command: {tool_command}")
+        process = subprocess.Popen(tool_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+        if output:
+            print(output.decode())
+            speak("Task completed. Check the terminal for output.")
+        if error:
+            print("Error:", error.decode())
+            speak("There was an error running the command.")
+    except Exception as e:
+        speak(f"An error occurred: {str(e)}")
+
+# Function to create and run scripts automatically
+def create_and_run_script(script_content, filename="hack_script.sh"):
+    with open(filename, "w") as file:
+        file.write(script_content)
+    os.chmod(filename, 0o755)
+    speak(f"Running script {filename}")
+    run_hacking_tool(f"./{filename}")
+
+# Main Function
+def ethical_hacking_jarvis():
+    speak("Welcome to Ethical Hacking JARVIS. How can I assist you?")
+    while True:
+        command = take_command()
+
+        if "run nmap" in command:
+            target = command.replace("run nmap on ", "").strip()
+            run_hacking_tool(f"nmap -A {target}")
+
+        elif "create script" in command:
+            speak("What script should I create?")
+            script_content = """#!/bin/bash
+echo 'Running custom script...'
+ifconfig
+"""
+            create_and_run_script(script_content)
+
+        elif "run metasploit" in command:
+            run_hacking_tool("msfconsole")
+
+        elif "show date and time" in command:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            speak(f"The current date and time is {current_time}")
+
+        elif "exit" in command or "quit" in command:
+            speak("Goodbye, Sandesh!")
+            break
+
+if __name__ == "__main__":
+    ethical_hacking_jarvis()
